@@ -5,6 +5,7 @@ import '../../domain/entities/task.dart';
 import '../bloc/task_bloc.dart';
 import '../bloc/task_lists_cubit.dart';
 import 'task_form_page.dart';
+import '../widgets/task_tile.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -149,32 +150,33 @@ class HomePage extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
           if (state.tasks.isEmpty) {
-            return const Center(child: Text('No tasks yet. Tap + to add one.'));
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  Icon(Icons.inbox_outlined, size: 48),
+                  SizedBox(height: 12),
+                  Text('No tasks yet. Tap + to add one.'),
+                ],
+              ),
+            );
           }
-          return ListView.separated(
-            itemCount: state.tasks.length,
-            separatorBuilder: (_, __) => const Divider(height: 1),
-            itemBuilder: (context, index) {
+          return AnimatedList(
+            key: GlobalKey(),
+            initialItemCount: state.tasks.length,
+            itemBuilder: (context, index, animation) {
               final task = state.tasks[index];
-              return ListTile(
-                onTap: () => _openEdit(context, task),
-                leading: Checkbox(
-                  value: task.isDone,
-                  onChanged: (_) =>
+              return SizeTransition(
+                sizeFactor: CurvedAnimation(
+                  parent: animation,
+                  curve: Curves.easeOut,
+                ),
+                child: TaskTile(
+                  task: task,
+                  onTap: () => _openEdit(context, task),
+                  onToggle: (_) =>
                       context.read<TaskBloc>().add(TaskToggled(task.id)),
-                ),
-                title: Text(
-                  task.title,
-                  style: TextStyle(
-                    decoration: task.isDone ? TextDecoration.lineThrough : null,
-                  ),
-                ),
-                subtitle: task.description == null || task.description!.isEmpty
-                    ? null
-                    : Text(task.description!),
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete_outline),
-                  onPressed: () =>
+                  onDelete: () =>
                       context.read<TaskBloc>().add(TaskDeleted(task.id)),
                 ),
               );

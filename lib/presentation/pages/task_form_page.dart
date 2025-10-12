@@ -70,41 +70,66 @@ class _TaskFormPageState extends State<TaskFormPage> {
     final isEditing = widget.initial != null;
     return Scaffold(
       appBar: AppBar(title: Text(isEditing ? 'Edit Task' : 'Add Task')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _titleController,
-                decoration: const InputDecoration(
-                  labelText: 'Title',
-                  border: OutlineInputBorder(),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 600),
+                child: Card(
+                  elevation: 1,
+                  clipBehavior: Clip.antiAlias,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          TextFormField(
+                            controller: _titleController,
+                            decoration: const InputDecoration(
+                              labelText: 'Title',
+                              border: OutlineInputBorder(),
+                            ),
+                            validator: (v) => (v == null || v.trim().isEmpty)
+                                ? 'Title is required'
+                                : null,
+                          ),
+                          const SizedBox(height: 12),
+                          TextFormField(
+                            controller: _descController,
+                            decoration: const InputDecoration(
+                              labelText: 'Description (optional)',
+                              border: OutlineInputBorder(),
+                            ),
+                            minLines: 3,
+                            maxLines: 6,
+                          ),
+                          const SizedBox(height: 16),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: FilledButton.icon(
+                              onPressed: _save,
+                              icon: const Icon(Icons.check),
+                              label: Text(
+                                isEditing ? 'Save Changes' : 'Add Task',
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
-                validator: (v) => (v == null || v.trim().isEmpty)
-                    ? 'Title is required'
-                    : null,
               ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _descController,
-                decoration: const InputDecoration(
-                  labelText: 'Description (optional)',
-                  border: OutlineInputBorder(),
-                ),
-                minLines: 2,
-                maxLines: 4,
-              ),
-              const Spacer(),
-              FilledButton.icon(
-                onPressed: _save,
-                icon: const Icon(Icons.check),
-                label: Text(isEditing ? 'Save Changes' : 'Add Task'),
-              ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
