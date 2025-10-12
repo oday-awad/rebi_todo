@@ -24,6 +24,26 @@ class TaskTile extends StatelessWidget {
       child: Dismissible(
         key: ValueKey(task.id),
         direction: DismissDirection.endToStart,
+        confirmDismiss: (_) async {
+          final confirmed = await showDialog<bool>(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: const Text('Delete task?'),
+              content: const Text('This action cannot be undone.'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(false),
+                  child: const Text('Cancel'),
+                ),
+                FilledButton(
+                  onPressed: () => Navigator.of(ctx).pop(true),
+                  child: const Text('Delete'),
+                ),
+              ],
+            ),
+          );
+          return confirmed ?? false;
+        },
         background: Container(
           alignment: Alignment.centerRight,
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -118,7 +138,26 @@ class TaskTile extends StatelessWidget {
                 const SizedBox(width: 8),
                 IconButton(
                   icon: const Icon(Icons.more_vert),
-                  onPressed: onDelete,
+                  onPressed: () async {
+                    final confirmed = await showDialog<bool>(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        title: const Text('Delete task?'),
+                        content: const Text('This action cannot be undone.'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(ctx).pop(false),
+                            child: const Text('Cancel'),
+                          ),
+                          FilledButton(
+                            onPressed: () => Navigator.of(ctx).pop(true),
+                            child: const Text('Delete'),
+                          ),
+                        ],
+                      ),
+                    );
+                    if (confirmed == true) onDelete();
+                  },
                   tooltip: 'Delete',
                 ),
               ],

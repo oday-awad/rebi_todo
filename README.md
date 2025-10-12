@@ -10,6 +10,7 @@ Clean Architecture Flutter To‑Do app using Hive for local storage, BLoC for st
 - **Material 3 UI**
 - **CRUD**: Add, Edit, Delete, Toggle Done
 - **Multiple lists**: Create/select separate lists (e.g. Shopping, Learning)
+- **Delete confirmation**: Prompt before deleting (swipe or menu)
 
 ### Requirements
 - Flutter (stable channel). Tested with Flutter 3.32.x and Dart 3.8.x
