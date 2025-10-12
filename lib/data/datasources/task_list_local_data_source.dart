@@ -17,7 +17,7 @@ class TaskListLocalDataSource {
     return list;
   }
 
-  Future<void> renameList(int id, String name) async {
+  Future<void> renameList(String id, String name) async {
     final existing = listBox.get(id);
     if (existing != null) {
       existing.name = name;
@@ -25,7 +25,7 @@ class TaskListLocalDataSource {
     }
   }
 
-  Future<void> deleteList(int id) async {
+  Future<void> deleteList(String id) async {
     await listBox.delete(id);
   }
 }

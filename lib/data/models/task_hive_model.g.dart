@@ -11,13 +11,34 @@ class TaskHiveModelAdapter extends TypeAdapter<TaskHiveModel> {
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
+
+    // Helper to coerce dynamic to String safely
+    String _asString(dynamic v, {String fallback = ''}) {
+      if (v == null) return fallback;
+      if (v is String) return v;
+      return v.toString();
+    }
+
+    // New schema (6 fields): 0=id, 1=listId, 2=title, 3=description, 4=isDone, 5=createdAt
+    if (numOfFields >= 6 || fields.containsKey(5)) {
+      return TaskHiveModel(
+        id: _asString(fields[0]),
+        listId: _asString(fields[1], fallback: 'default'),
+        title: _asString(fields[2]),
+        description: fields[3] as String?,
+        isDone: (fields[4] as bool?) ?? false,
+        createdAt: fields[5] as DateTime,
+      );
+    }
+
+    // Backward-compat: old schema (5 fields): 0=id, 1=title, 2=description, 3=isDone, 4=createdAt
     return TaskHiveModel(
-      id: fields[0] as String,
-      listId: fields[1] as String,
-      title: fields[2] as String,
-      description: fields[3] as String?,
-      isDone: fields[4] as bool,
-      createdAt: fields[5] as DateTime,
+      id: _asString(fields[0]),
+      listId: 'default',
+      title: _asString(fields[1]),
+      description: fields[2] as String?,
+      isDone: (fields[3] as bool?) ?? false,
+      createdAt: fields[4] as DateTime,
     );
   }
 

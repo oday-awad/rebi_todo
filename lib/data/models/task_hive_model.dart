@@ -8,6 +8,8 @@ class TaskHiveModel extends HiveObject {
   @HiveField(0)
   String id;
 
+  // For backward compatibility with old 5-field schema, we will default this
+  // to 'default' when reading, if not present.
   @HiveField(1)
   String listId;
 

@@ -24,7 +24,7 @@ class TaskListRepositoryImpl implements TaskListRepository {
   }
 
   @override
-  Future<void> deleteList(int id) => localDataSource.deleteList(id);
+  Future<void> deleteList(String id) => localDataSource.deleteList(id);
 
   @override
   Future<List<TaskList>> getAllLists() async {
@@ -33,6 +33,6 @@ class TaskListRepositoryImpl implements TaskListRepository {
   }
 
   @override
-  Future<void> renameList(int id, String name) =>
+  Future<void> renameList(String id, String name) =>
       localDataSource.renameList(id, name);
 }

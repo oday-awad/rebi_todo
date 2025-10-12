@@ -12,8 +12,11 @@ class HomePage extends StatelessWidget {
   void _openAdd(BuildContext context) async {
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => BlocProvider.value(
-          value: context.read<TaskBloc>(),
+        builder: (_) => MultiBlocProvider(
+          providers: [
+            BlocProvider.value(value: context.read<TaskBloc>()),
+            BlocProvider.value(value: context.read<TaskListsCubit>()),
+          ],
           child: const TaskFormPage(),
         ),
       ),
@@ -23,8 +26,11 @@ class HomePage extends StatelessWidget {
   void _openEdit(BuildContext context, Task task) async {
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => BlocProvider.value(
-          value: context.read<TaskBloc>(),
+        builder: (_) => MultiBlocProvider(
+          providers: [
+            BlocProvider.value(value: context.read<TaskBloc>()),
+            BlocProvider.value(value: context.read<TaskListsCubit>()),
+          ],
           child: TaskFormPage(initial: task),
         ),
       ),

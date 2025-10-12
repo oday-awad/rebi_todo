@@ -83,12 +83,12 @@ class TaskListsCubit extends Cubit<TaskListsState> {
     return saved;
   }
 
-  Future<void> rename(int id, String name) async {
+  Future<void> rename(String id, String name) async {
     await renameTaskList(id, name);
     await load();
   }
 
-  Future<void> remove(int id) async {
+  Future<void> remove(String id) async {
     await deleteTaskList(id);
     await load();
   }

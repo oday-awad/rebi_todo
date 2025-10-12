@@ -9,6 +9,7 @@ Clean Architecture Flutter To‑Do app using Hive for local storage, BLoC for st
 - **Dependency injection**: `get_it`
 - **Material 3 UI**
 - **CRUD**: Add, Edit, Delete, Toggle Done
+- **Multiple lists**: Create/select separate lists (e.g. Shopping, Learning)
 
 ### Requirements
 - Flutter (stable channel). Tested with Flutter 3.32.x and Dart 3.8.x
@@ -42,27 +43,35 @@ lib/
   data/
     datasources/
       task_local_data_source.dart
+      task_list_local_data_source.dart
     models/
       task_hive_model.dart
       task_hive_model.g.dart   # Hand-written Hive adapter
+      task_list_hive_model.dart
+      task_list_hive_model.g.dart
     repositories/
       task_repository_impl.dart
+      task_list_repository_impl.dart
   domain/
     entities/
       task.dart
+      task_list.dart
     repositories/
       task_repository.dart
+      task_list_repository.dart
     usecases/
       add_task.dart
       update_task.dart
       delete_task.dart
       get_tasks.dart
       toggle_done.dart
+      task_lists.dart
   presentation/
     bloc/
       task_bloc.dart
       task_event.dart
       task_state.dart
+      task_lists_cubit.dart
     pages/
       home_page.dart
       task_form_page.dart
@@ -72,15 +81,17 @@ lib/
 ```
 
 ### Key implementation notes
-- **Hive setup**: Adapter is registered in `main.dart` via `Hive.registerAdapter(TaskHiveModelAdapter())`. Box name: `tasks_box`.
+- **Hive setup**: Adapters are registered in `main.dart` via `Hive.registerAdapter(TaskHiveModelAdapter())` and `Hive.registerAdapter(TaskListHiveModelAdapter())`. Boxes: `tasks_box`, `task_lists_box`.
 - **DI**: All dependencies are wired in `core/di/injection_container.dart`, called during app startup.
-- **IDs**: Tasks use `DateTime.now().millisecondsSinceEpoch` as a unique `id`.
+- **IDs**: All IDs are Strings (e.g. `DateTime.now().millisecondsSinceEpoch.toString()`), including `Task.id`, `Task.listId`, and `TaskList.id`.
 - **Repository**: `TaskRepositoryImpl` bridges domain entities and Hive models.
 - **State management**: `TaskBloc` exposes events for start, add, update, delete, and toggle.
+- **Lists management**: `TaskListsCubit` manages list CRUD and selection; `TaskBloc` loads tasks filtered by the selected list.
 
 ### Usage
-- Home shows a list of tasks with a checkbox to mark as done.
-- Tap the Floating Action Button to add a task.
+- Home shows the current list's tasks with a checkbox to mark as done.
+- Tap the list icon in the app bar to select or create a list.
+- Tap the Floating Action Button to add a task to the selected list.
 - Tap a task to edit it.
 - Use the delete icon on a task to remove it.
 
@@ -92,3 +103,4 @@ lib/
 
 ### Troubleshooting
 - If you see an error about desktop not being configured, follow the optional Desktop steps above or run on a mobile device/emulator.
+- If you changed schemas and see Hive adapter type errors, do a full restart. Legacy tasks are migrated at read time and assigned to the `default` list.

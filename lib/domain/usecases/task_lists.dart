@@ -16,11 +16,11 @@ class AddTaskList {
 class RenameTaskList {
   final TaskListRepository repository;
   RenameTaskList(this.repository);
-  Future<void> call(int id, String name) => repository.renameList(id, name);
+  Future<void> call(String id, String name) => repository.renameList(id, name);
 }
 
 class DeleteTaskList {
   final TaskListRepository repository;
   DeleteTaskList(this.repository);
-  Future<void> call(int id) => repository.deleteList(id);
+  Future<void> call(String id) => repository.deleteList(id);
 }
