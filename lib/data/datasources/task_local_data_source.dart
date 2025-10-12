@@ -9,16 +9,20 @@ class TaskLocalDataSource {
 
   TaskLocalDataSource(this.taskBox);
 
-  Future<List<TaskHiveModel>> getTasks() async {
-    return taskBox.values.toList()
+  Future<List<TaskHiveModel>> getTasks(String listId) async {
+    final items = taskBox.values.where((t) => t.listId == listId).toList()
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return items;
   }
 
   Future<TaskHiveModel> addTask(TaskHiveModel task) async {
     try {
       await taskBox.put(task.id, task);
       Log.s('Task added', tag: 'TaskLocalDataSource');
-      Log.d('id=${task.id}, title=${task.title}', tag: 'TaskLocalDataSource');
+      Log.d(
+        'id=${task.id}, listId=${task.listId}, title=${task.title}',
+        tag: 'TaskLocalDataSource',
+      );
     } catch (e, s) {
       Log.e(
         'Failed to add task',

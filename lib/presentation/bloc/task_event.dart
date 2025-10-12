@@ -8,7 +8,11 @@ abstract class TaskEvent extends Equatable {
 }
 
 class TaskStarted extends TaskEvent {
-  const TaskStarted();
+  final String listId;
+  const TaskStarted(this.listId);
+
+  @override
+  List<Object?> get props => [listId];
 }
 
 class TaskAdded extends TaskEvent {

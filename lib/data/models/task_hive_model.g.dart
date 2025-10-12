@@ -13,26 +13,29 @@ class TaskHiveModelAdapter extends TypeAdapter<TaskHiveModel> {
     };
     return TaskHiveModel(
       id: fields[0] as String,
-      title: fields[1] as String,
-      description: fields[2] as String?,
-      isDone: fields[3] as bool,
-      createdAt: fields[4] as DateTime,
+      listId: fields[1] as String,
+      title: fields[2] as String,
+      description: fields[3] as String?,
+      isDone: fields[4] as bool,
+      createdAt: fields[5] as DateTime,
     );
   }
 
   @override
   void write(BinaryWriter writer, TaskHiveModel obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
-      ..write(obj.title)
+      ..write(obj.listId)
       ..writeByte(2)
-      ..write(obj.description)
+      ..write(obj.title)
       ..writeByte(3)
-      ..write(obj.isDone)
+      ..write(obj.description)
       ..writeByte(4)
+      ..write(obj.isDone)
+      ..writeByte(5)
       ..write(obj.createdAt);
   }
 }

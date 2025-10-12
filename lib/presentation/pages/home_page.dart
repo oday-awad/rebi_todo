@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../domain/entities/task.dart';
 import '../bloc/task_bloc.dart';
+import '../bloc/task_lists_cubit.dart';
 import 'task_form_page.dart';
 
 class HomePage extends StatelessWidget {
@@ -33,9 +34,111 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Tasks')),
+      appBar: AppBar(
+        title: BlocBuilder<TaskListsCubit, TaskListsState>(
+          builder: (context, listState) {
+            String? currentName;
+            if (listState.lists.isNotEmpty) {
+              final match = listState.lists.firstWhere(
+                (l) => l.id == listState.selectedListId,
+                orElse: () => listState.lists.first,
+              );
+              currentName = match.name;
+            }
+            return Text(currentName ?? 'Tasks');
+          },
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.list),
+            onPressed: () async {
+              final listState = context.read<TaskListsCubit>().state;
+              await showModalBottomSheet(
+                context: context,
+                builder: (ctx) {
+                  return SafeArea(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ListTile(
+                          title: const Text('Add list'),
+                          leading: const Icon(Icons.add),
+                          onTap: () async {
+                            Navigator.pop(ctx);
+                            final controller = TextEditingController();
+                            final name = await showDialog<String>(
+                              context: context,
+                              builder: (dCtx) => AlertDialog(
+                                title: const Text('New list'),
+                                content: TextField(
+                                  controller: controller,
+                                  decoration: const InputDecoration(
+                                    hintText: 'List name',
+                                  ),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(dCtx),
+                                    child: const Text('Cancel'),
+                                  ),
+                                  FilledButton(
+                                    onPressed: () => Navigator.pop(
+                                      dCtx,
+                                      controller.text.trim(),
+                                    ),
+                                    child: const Text('Create'),
+                                  ),
+                                ],
+                              ),
+                            );
+                            if (name != null && name.isNotEmpty) {
+                              final created = await context
+                                  .read<TaskListsCubit>()
+                                  .create(name);
+                              if (created != null) {
+                                context.read<TaskListsCubit>().select(
+                                  created.id,
+                                );
+                                context.read<TaskBloc>().add(
+                                  TaskStarted(created.id),
+                                );
+                              }
+                            }
+                          },
+                        ),
+                        for (final l in listState.lists)
+                          ListTile(
+                            leading: Icon(
+                              l.id == listState.selectedListId
+                                  ? Icons.radio_button_checked
+                                  : Icons.radio_button_off,
+                            ),
+                            title: Text(l.name),
+                            onTap: () {
+                              Navigator.pop(ctx);
+                              context.read<TaskListsCubit>().select(l.id);
+                              context.read<TaskBloc>().add(TaskStarted(l.id));
+                            },
+                          ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ],
+      ),
       body: BlocBuilder<TaskBloc, TaskState>(
         builder: (context, state) {
+          // Ensure we load tasks for the selected list when lists are ready
+          final listsState = context.watch<TaskListsCubit>().state;
+          if (listsState.selectedListId != null &&
+              state.status == TaskStatus.initial) {
+            context.read<TaskBloc>().add(
+              TaskStarted(listsState.selectedListId!),
+            );
+          }
           if (state.status == TaskStatus.loading) {
             return const Center(child: CircularProgressIndicator());
           }

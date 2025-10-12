@@ -36,7 +36,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
   Future<void> _onStarted(TaskStarted event, Emitter<TaskState> emit) async {
     emit(state.copyWith(status: TaskStatus.loading));
     try {
-      final tasks = await getTasks();
+      final tasks = await getTasks(listId: event.listId);
       emit(state.copyWith(status: TaskStatus.success, tasks: tasks));
     } catch (e) {
       emit(

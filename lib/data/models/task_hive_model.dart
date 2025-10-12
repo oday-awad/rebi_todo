@@ -9,19 +9,23 @@ class TaskHiveModel extends HiveObject {
   String id;
 
   @HiveField(1)
-  String title;
+  String listId;
 
   @HiveField(2)
-  String? description;
+  String title;
 
   @HiveField(3)
-  bool isDone;
+  String? description;
 
   @HiveField(4)
+  bool isDone;
+
+  @HiveField(5)
   DateTime createdAt;
 
   TaskHiveModel({
     required this.id,
+    required this.listId,
     required this.title,
     this.description,
     required this.isDone,

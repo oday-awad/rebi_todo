@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../domain/entities/task.dart';
 import '../bloc/task_bloc.dart';
+import '../bloc/task_lists_cubit.dart';
 
 class TaskFormPage extends StatefulWidget {
   final Task? initial;
@@ -36,9 +37,13 @@ class _TaskFormPageState extends State<TaskFormPage> {
   void _save() {
     if (!_formKey.currentState!.validate()) return;
     final now = DateTime.now();
+    final selectedListId =
+        context.read<TaskListsCubit>().state.selectedListId ??
+        now.millisecondsSinceEpoch.toString();
     if (widget.initial == null) {
       final task = Task(
         id: now.millisecondsSinceEpoch.toString(),
+        listId: selectedListId,
         title: _titleController.text.trim(),
         description: _descController.text.trim().isEmpty
             ? null
@@ -49,6 +54,7 @@ class _TaskFormPageState extends State<TaskFormPage> {
       context.read<TaskBloc>().add(TaskAdded(task));
     } else {
       final updated = widget.initial!.copyWith(
+        listId: selectedListId,
         title: _titleController.text.trim(),
         description: _descController.text.trim().isEmpty
             ? null

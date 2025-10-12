@@ -6,18 +6,22 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'core/di/injection_container.dart';
 import 'data/models/task_hive_model.dart';
 import 'presentation/bloc/task_bloc.dart';
+import 'presentation/bloc/task_lists_cubit.dart';
 import 'presentation/pages/home_page.dart';
 import 'domain/usecases/add_task.dart';
 import 'domain/usecases/delete_task.dart';
 import 'domain/usecases/get_tasks.dart';
 import 'domain/usecases/toggle_done.dart';
 import 'domain/usecases/update_task.dart';
+import 'domain/usecases/task_lists.dart';
+import 'data/models/task_list_hive_model.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Initialize Hive and register adapters
   await Hive.initFlutter();
   Hive.registerAdapter(TaskHiveModelAdapter());
+  Hive.registerAdapter(TaskListHiveModelAdapter());
   // Initialize DI and open boxes
   await initDependencies();
   runApp(const MyApp());
@@ -40,14 +44,26 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: BlocProvider(
-        create: (_) => TaskBloc(
-          getTasks: getTasks,
-          addTask: addTask,
-          updateTask: updateTask,
-          deleteTask: deleteTask,
-          toggleDone: toggleDone,
-        )..add(const TaskStarted()),
+      home: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (_) => TaskListsCubit(
+              getTaskLists: GetIt.I<GetTaskLists>(),
+              addTaskList: GetIt.I<AddTaskList>(),
+              renameTaskList: GetIt.I<RenameTaskList>(),
+              deleteTaskList: GetIt.I<DeleteTaskList>(),
+            )..load(),
+          ),
+          BlocProvider(
+            create: (_) => TaskBloc(
+              getTasks: getTasks,
+              addTask: addTask,
+              updateTask: updateTask,
+              deleteTask: deleteTask,
+              toggleDone: toggleDone,
+            ),
+          ),
+        ],
         child: const HomePage(),
       ),
     );

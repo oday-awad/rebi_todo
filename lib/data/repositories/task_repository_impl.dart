@@ -11,6 +11,7 @@ class TaskRepositoryImpl implements TaskRepository {
 
   Task _mapFromHive(TaskHiveModel model) => Task(
     id: model.id,
+    listId: model.listId,
     title: model.title,
     description: model.description,
     isDone: model.isDone,
@@ -19,6 +20,7 @@ class TaskRepositoryImpl implements TaskRepository {
 
   TaskHiveModel _mapToHive(Task task) => TaskHiveModel(
     id: task.id,
+    listId: task.listId,
     title: task.title,
     description: task.description,
     isDone: task.isDone,
@@ -35,8 +37,8 @@ class TaskRepositoryImpl implements TaskRepository {
   Future<void> deleteTask(String id) => localDataSource.deleteTask(id);
 
   @override
-  Future<List<Task>> getAllTasks() async {
-    final models = await localDataSource.getTasks();
+  Future<List<Task>> getAllTasks({required String listId}) async {
+    final models = await localDataSource.getTasks(listId);
     return models.map(_mapFromHive).toList();
   }
 
