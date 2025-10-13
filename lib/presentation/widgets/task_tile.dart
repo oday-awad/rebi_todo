@@ -93,72 +93,45 @@ class TaskTile extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AnimatedDefaultTextStyle(
-                        duration: const Duration(milliseconds: 200),
-                        style: theme.textTheme.titleMedium!.copyWith(
-                          decoration: task.isDone
-                              ? TextDecoration.lineThrough
-                              : null,
-                          color: task.isDone
-                              ? theme.colorScheme.outline
-                              : theme.colorScheme.onSurface,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        child: Text(
-                          task.title,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 200),
+                      style: theme.textTheme.titleMedium!.copyWith(
+                        decoration: task.isDone
+                            ? TextDecoration.lineThrough
+                            : null,
+                        color: task.isDone
+                            ? theme.colorScheme.outline
+                            : theme.colorScheme.onSurface,
+                        fontWeight: FontWeight.w600,
                       ),
-                      const SizedBox(height: 6),
-                      AnimatedCrossFade(
-                        duration: const Duration(milliseconds: 200),
-                        crossFadeState:
-                            (task.description == null ||
-                                task.description!.isEmpty)
-                            ? CrossFadeState.showSecond
-                            : CrossFadeState.showFirst,
-                        firstChild: Text(
-                          task.description ?? '',
-                          style: theme.textTheme.bodyMedium!.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
+                      child: Text(
+                        task.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    AnimatedCrossFade(
+                      duration: const Duration(milliseconds: 200),
+                      crossFadeState:
+                          (task.description == null ||
+                              task.description!.isEmpty)
+                          ? CrossFadeState.showSecond
+                          : CrossFadeState.showFirst,
+                      firstChild: Text(
+                        task.description ?? '',
+                        style: theme.textTheme.bodyMedium!.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
                         ),
-                        secondChild: const SizedBox.shrink(),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-                IconButton(
-                  icon: const Icon(Icons.more_vert),
-                  onPressed: () async {
-                    final confirmed = await showDialog<bool>(
-                      context: context,
-                      builder: (ctx) => AlertDialog(
-                        title: const Text('Delete task?'),
-                        content: const Text('This action cannot be undone.'),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.of(ctx).pop(false),
-                            child: const Text('Cancel'),
-                          ),
-                          FilledButton(
-                            onPressed: () => Navigator.of(ctx).pop(true),
-                            child: const Text('Delete'),
-                          ),
-                        ],
-                      ),
-                    );
-                    if (confirmed == true) onDelete();
-                  },
-                  tooltip: 'Delete',
+                      secondChild: const SizedBox.shrink(),
+                    ),
+                  ],
                 ),
               ],
             ),

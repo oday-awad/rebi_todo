@@ -33,11 +33,22 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     on<TaskToggled>(_onToggled);
   }
 
+  List<Task> _sortTasks(List<Task> tasks) {
+    final sorted = [...tasks];
+    sorted.sort((a, b) {
+      if (a.isDone != b.isDone) return a.isDone ? 1 : -1; // undone first
+      return b.createdAt.compareTo(a.createdAt); // newest first within group
+    });
+    return sorted;
+  }
+
   Future<void> _onStarted(TaskStarted event, Emitter<TaskState> emit) async {
     emit(state.copyWith(status: TaskStatus.loading));
     try {
       final tasks = await getTasks(listId: event.listId);
-      emit(state.copyWith(status: TaskStatus.success, tasks: tasks));
+      emit(
+        state.copyWith(status: TaskStatus.success, tasks: _sortTasks(tasks)),
+      );
     } catch (e) {
       emit(
         state.copyWith(status: TaskStatus.failure, errorMessage: e.toString()),
@@ -53,7 +64,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
       final updated = hasExisting
           ? state.tasks.map((t) => t.id == created.id ? created : t).toList()
           : [created, ...state.tasks];
-      emit(state.copyWith(tasks: updated));
+      emit(state.copyWith(tasks: _sortTasks(updated)));
     } catch (e) {
       emit(state.copyWith(errorMessage: e.toString()));
     }
@@ -65,7 +76,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
       final updated = state.tasks
           .map((t) => t.id == event.task.id ? event.task : t)
           .toList();
-      emit(state.copyWith(tasks: updated));
+      emit(state.copyWith(tasks: _sortTasks(updated)));
     } catch (e) {
       emit(state.copyWith(errorMessage: e.toString()));
     }
@@ -87,7 +98,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
       final updated = state.tasks
           .map((t) => t.id == event.id ? t.copyWith(isDone: !t.isDone) : t)
           .toList();
-      emit(state.copyWith(tasks: updated));
+      emit(state.copyWith(tasks: _sortTasks(updated)));
     } catch (e) {
       emit(state.copyWith(errorMessage: e.toString()));
     }

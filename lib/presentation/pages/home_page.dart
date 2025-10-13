@@ -7,8 +7,15 @@ import '../bloc/task_lists_cubit.dart';
 import 'task_form_page.dart';
 import '../widgets/task_tile.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final ScrollController _scrollController = ScrollController();
 
   void _openAdd(BuildContext context) async {
     await Navigator.of(context).push(
@@ -161,24 +168,20 @@ class HomePage extends StatelessWidget {
               ),
             );
           }
-          return AnimatedList(
-            key: GlobalKey(),
-            initialItemCount: state.tasks.length,
-            itemBuilder: (context, index, animation) {
+          return ListView.builder(
+            key: const PageStorageKey('tasks_list'),
+            controller: _scrollController,
+            padding: const EdgeInsets.only(top: 8, bottom: 88),
+            itemCount: state.tasks.length,
+            itemBuilder: (context, index) {
               final task = state.tasks[index];
-              return SizeTransition(
-                sizeFactor: CurvedAnimation(
-                  parent: animation,
-                  curve: Curves.easeOut,
-                ),
-                child: TaskTile(
-                  task: task,
-                  onTap: () => _openEdit(context, task),
-                  onToggle: (_) =>
-                      context.read<TaskBloc>().add(TaskToggled(task.id)),
-                  onDelete: () =>
-                      context.read<TaskBloc>().add(TaskDeleted(task.id)),
-                ),
+              return TaskTile(
+                task: task,
+                onTap: () => _openEdit(context, task),
+                onToggle: (_) =>
+                    context.read<TaskBloc>().add(TaskToggled(task.id)),
+                onDelete: () =>
+                    context.read<TaskBloc>().add(TaskDeleted(task.id)),
               );
             },
           );
