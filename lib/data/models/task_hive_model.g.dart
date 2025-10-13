@@ -19,6 +19,19 @@ class TaskHiveModelAdapter extends TypeAdapter<TaskHiveModel> {
       return v.toString();
     }
 
+    // Newer schema (7 fields): adds 6=isArchived (bool)
+    if (numOfFields >= 7 || fields.containsKey(6)) {
+      return TaskHiveModel(
+        id: _asString(fields[0]),
+        listId: _asString(fields[1], fallback: 'default'),
+        title: _asString(fields[2]),
+        description: fields[3] as String?,
+        isDone: (fields[4] as bool?) ?? false,
+        createdAt: fields[5] as DateTime,
+        isArchived: (fields[6] as bool?) ?? false,
+      );
+    }
+
     // New schema (6 fields): 0=id, 1=listId, 2=title, 3=description, 4=isDone, 5=createdAt
     if (numOfFields >= 6 || fields.containsKey(5)) {
       return TaskHiveModel(
@@ -28,6 +41,7 @@ class TaskHiveModelAdapter extends TypeAdapter<TaskHiveModel> {
         description: fields[3] as String?,
         isDone: (fields[4] as bool?) ?? false,
         createdAt: fields[5] as DateTime,
+        isArchived: false,
       );
     }
 
@@ -45,7 +59,7 @@ class TaskHiveModelAdapter extends TypeAdapter<TaskHiveModel> {
   @override
   void write(BinaryWriter writer, TaskHiveModel obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -57,6 +71,8 @@ class TaskHiveModelAdapter extends TypeAdapter<TaskHiveModel> {
       ..writeByte(4)
       ..write(obj.isDone)
       ..writeByte(5)
-      ..write(obj.createdAt);
+      ..write(obj.createdAt)
+      ..writeByte(6)
+      ..write(obj.isArchived);
   }
 }

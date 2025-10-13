@@ -5,6 +5,7 @@ class Task {
   final String title;
   final String? description;
   final bool isDone;
+  final bool isArchived;
   final DateTime createdAt;
 
   const Task({
@@ -13,6 +14,7 @@ class Task {
     required this.title,
     this.description,
     required this.isDone,
+    this.isArchived = false,
     required this.createdAt,
   });
 
@@ -22,6 +24,7 @@ class Task {
     String? title,
     String? description,
     bool? isDone,
+    bool? isArchived,
     DateTime? createdAt,
   }) {
     return Task(
@@ -30,6 +33,7 @@ class Task {
       title: title ?? this.title,
       description: description ?? this.description,
       isDone: isDone ?? this.isDone,
+      isArchived: isArchived ?? this.isArchived,
       createdAt: createdAt ?? this.createdAt,
     );
   }

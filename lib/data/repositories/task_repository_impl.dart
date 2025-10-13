@@ -15,6 +15,7 @@ class TaskRepositoryImpl implements TaskRepository {
     title: model.title,
     description: model.description,
     isDone: model.isDone,
+    isArchived: model.isArchived,
     createdAt: model.createdAt,
   );
 
@@ -24,6 +25,7 @@ class TaskRepositoryImpl implements TaskRepository {
     title: task.title,
     description: task.description,
     isDone: task.isDone,
+    isArchived: task.isArchived,
     createdAt: task.createdAt,
   );
 
@@ -37,8 +39,11 @@ class TaskRepositoryImpl implements TaskRepository {
   Future<void> deleteTask(String id) => localDataSource.deleteTask(id);
 
   @override
-  Future<List<Task>> getAllTasks({required String listId}) async {
-    final models = await localDataSource.getTasks(listId);
+  Future<List<Task>> getAllTasks({
+    required String listId,
+    bool archived = false,
+  }) async {
+    final models = await localDataSource.getTasks(listId, archived: archived);
     return models.map(_mapFromHive).toList();
   }
 
@@ -48,4 +53,7 @@ class TaskRepositoryImpl implements TaskRepository {
   @override
   Future<void> updateTask(Task task) =>
       localDataSource.updateTask(_mapToHive(task));
+
+  @override
+  Future<void> toggleArchive(String id) => localDataSource.toggleArchive(id);
 }

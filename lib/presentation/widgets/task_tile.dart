@@ -7,6 +7,7 @@ class TaskTile extends StatelessWidget {
   final VoidCallback onTap;
   final ValueChanged<bool?> onToggle;
   final VoidCallback onDelete;
+  final VoidCallback onArchiveToggle;
 
   const TaskTile({
     super.key,
@@ -14,6 +15,7 @@ class TaskTile extends StatelessWidget {
     required this.onTap,
     required this.onToggle,
     required this.onDelete,
+    required this.onArchiveToggle,
   });
 
   @override
@@ -81,7 +83,7 @@ class TaskTile extends StatelessWidget {
             ),
             padding: const EdgeInsets.all(14),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 AnimatedScale(
                   duration: const Duration(milliseconds: 200),
@@ -93,44 +95,81 @@ class TaskTile extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    AnimatedDefaultTextStyle(
-                      duration: const Duration(milliseconds: 200),
-                      style: theme.textTheme.titleMedium!.copyWith(
-                        decoration: task.isDone
-                            ? TextDecoration.lineThrough
-                            : null,
-                        color: task.isDone
-                            ? theme.colorScheme.outline
-                            : theme.colorScheme.onSurface,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      child: Text(
-                        task.title,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    AnimatedCrossFade(
-                      duration: const Duration(milliseconds: 200),
-                      crossFadeState:
-                          (task.description == null ||
-                              task.description!.isEmpty)
-                          ? CrossFadeState.showSecond
-                          : CrossFadeState.showFirst,
-                      firstChild: Text(
-                        task.description ?? '',
-                        style: theme.textTheme.bodyMedium!.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AnimatedDefaultTextStyle(
+                        duration: const Duration(milliseconds: 200),
+                        style: theme.textTheme.titleMedium!.copyWith(
+                          decoration: task.isDone
+                              ? TextDecoration.lineThrough
+                              : null,
+                          color: task.isDone
+                              ? theme.colorScheme.outline
+                              : theme.colorScheme.onSurface,
+                          fontWeight: FontWeight.w600,
                         ),
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
+                        child: Text(
+                          task.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                      secondChild: const SizedBox.shrink(),
+                      const SizedBox(height: 6),
+                      AnimatedCrossFade(
+                        duration: const Duration(milliseconds: 200),
+                        crossFadeState:
+                            (task.description == null ||
+                                task.description!.isEmpty)
+                            ? CrossFadeState.showSecond
+                            : CrossFadeState.showFirst,
+                        firstChild: Text(
+                          task.description ?? '',
+                          style: theme.textTheme.bodyMedium!.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        secondChild: const SizedBox.shrink(),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                PopupMenuButton<String>(
+                  onSelected: (value) async {
+                    if (value == 'archive') {
+                      onArchiveToggle();
+                    } else if (value == 'delete') {
+                      final confirmed = await showDialog<bool>(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: const Text('Delete task?'),
+                          content: const Text('This action cannot be undone.'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(ctx).pop(false),
+                              child: const Text('Cancel'),
+                            ),
+                            FilledButton(
+                              onPressed: () => Navigator.of(ctx).pop(true),
+                              child: const Text('Delete'),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (confirmed == true) onDelete();
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 'archive',
+                      child: Text(task.isArchived ? 'Unarchive' : 'Archive'),
                     ),
+                    const PopupMenuDivider(),
+                    const PopupMenuItem(value: 'delete', child: Text('Delete')),
                   ],
                 ),
               ],

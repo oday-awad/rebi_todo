@@ -5,6 +5,7 @@ import '../../domain/entities/task.dart';
 import '../bloc/task_bloc.dart';
 import '../bloc/task_lists_cubit.dart';
 import 'task_form_page.dart';
+import 'archived_page.dart';
 import '../widgets/task_tile.dart';
 
 class HomePage extends StatefulWidget {
@@ -182,6 +183,8 @@ class _HomePageState extends State<HomePage> {
                     context.read<TaskBloc>().add(TaskToggled(task.id)),
                 onDelete: () =>
                     context.read<TaskBloc>().add(TaskDeleted(task.id)),
+                onArchiveToggle: () =>
+                    context.read<TaskBloc>().add(TaskArchiveToggled(task.id)),
               );
             },
           );
@@ -190,6 +193,47 @@ class _HomePageState extends State<HomePage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () => _openAdd(context),
         child: const Icon(Icons.add),
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+          child: Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  icon: const Icon(Icons.archive_outlined),
+                  label: const Text('Archived tasks'),
+                  onPressed: () async {
+                    final listId = context
+                        .read<TaskListsCubit>()
+                        .state
+                        .selectedListId;
+                    if (listId == null) return;
+                    await Navigator.of(context)
+                        .push(
+                          MaterialPageRoute(
+                            builder: (_) => MultiBlocProvider(
+                              providers: [
+                                BlocProvider.value(
+                                  value: context.read<TaskBloc>(),
+                                ),
+                                BlocProvider.value(
+                                  value: context.read<TaskListsCubit>(),
+                                ),
+                              ],
+                              child: ArchivedPage(listId: listId),
+                            ),
+                          ),
+                        )
+                        .then((value) {
+                          context.read<TaskBloc>().add(TaskStarted(listId));
+                        });
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

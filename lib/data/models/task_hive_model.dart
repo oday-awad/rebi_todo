@@ -25,6 +25,10 @@ class TaskHiveModel extends HiveObject {
   @HiveField(5)
   DateTime createdAt;
 
+  // New field to support archiving (defaults to false for old entries)
+  @HiveField(6)
+  bool isArchived;
+
   TaskHiveModel({
     required this.id,
     required this.listId,
@@ -32,5 +36,6 @@ class TaskHiveModel extends HiveObject {
     this.description,
     required this.isDone,
     required this.createdAt,
+    this.isArchived = false,
   });
 }

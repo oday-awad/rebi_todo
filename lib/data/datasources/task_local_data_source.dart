@@ -9,9 +9,15 @@ class TaskLocalDataSource {
 
   TaskLocalDataSource(this.taskBox);
 
-  Future<List<TaskHiveModel>> getTasks(String listId) async {
-    final items = taskBox.values.where((t) => t.listId == listId).toList()
-      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+  Future<List<TaskHiveModel>> getTasks(
+    String listId, {
+    bool archived = false,
+  }) async {
+    final items =
+        taskBox.values
+            .where((t) => t.listId == listId && t.isArchived == archived)
+            .toList()
+          ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
     return items;
   }
 
@@ -50,6 +56,18 @@ class TaskLocalDataSource {
       await existing.save();
       Log.i(
         'Task toggled id=$id isDone=${existing.isDone}',
+        tag: 'TaskLocalDataSource',
+      );
+    }
+  }
+
+  Future<void> toggleArchive(String id) async {
+    final existing = taskBox.get(id);
+    if (existing != null) {
+      existing.isArchived = !existing.isArchived;
+      await existing.save();
+      Log.i(
+        'Task archived id=$id isArchived=${existing.isArchived}',
         tag: 'TaskLocalDataSource',
       );
     }

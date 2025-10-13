@@ -46,3 +46,11 @@ class TaskToggled extends TaskEvent {
   @override
   List<Object?> get props => [id];
 }
+
+class TaskArchiveToggled extends TaskEvent {
+  final String id;
+  const TaskArchiveToggled(this.id);
+
+  @override
+  List<Object?> get props => [id];
+}
