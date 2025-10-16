@@ -36,8 +36,3 @@ flutter_launcher_icons:
   web:
     generate: true
     image_path: assets/icons/logo.png
-
-# Some versions of the tool expect this legacy key
-flutter_icons:
-  android: true
-  image_path: assets/icons/logo.png
