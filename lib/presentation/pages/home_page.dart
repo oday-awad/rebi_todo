@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../domain/entities/task.dart';
 import '../bloc/task_bloc.dart';
 import '../bloc/task_lists_cubit.dart';
 import 'task_form_page.dart';
 import 'archived_page.dart';
+import 'task_lists_page.dart';
+import 'task_details_page.dart';
 import '../widgets/task_tile.dart';
 
 class HomePage extends StatefulWidget {
@@ -32,19 +33,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _openEdit(BuildContext context, Task task) async {
-    await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => MultiBlocProvider(
-          providers: [
-            BlocProvider.value(value: context.read<TaskBloc>()),
-            BlocProvider.value(value: context.read<TaskListsCubit>()),
-          ],
-          child: TaskFormPage(initial: task),
-        ),
-      ),
-    );
-  }
+  // Removed _openEdit; task taps navigate to TaskDetailsPage instead
 
   @override
   Widget build(BuildContext context) {
@@ -63,86 +52,6 @@ class _HomePageState extends State<HomePage> {
             return Text(currentName ?? 'Tasks');
           },
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.list),
-            onPressed: () async {
-              final listState = context.read<TaskListsCubit>().state;
-              await showModalBottomSheet(
-                context: context,
-                builder: (ctx) {
-                  return SafeArea(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ListTile(
-                          title: const Text('Add list'),
-                          leading: const Icon(Icons.add),
-                          onTap: () async {
-                            Navigator.pop(ctx);
-                            final controller = TextEditingController();
-                            final name = await showDialog<String>(
-                              context: context,
-                              builder: (dCtx) => AlertDialog(
-                                title: const Text('New list'),
-                                content: TextField(
-                                  controller: controller,
-                                  decoration: const InputDecoration(
-                                    hintText: 'List name',
-                                  ),
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(dCtx),
-                                    child: const Text('Cancel'),
-                                  ),
-                                  FilledButton(
-                                    onPressed: () => Navigator.pop(
-                                      dCtx,
-                                      controller.text.trim(),
-                                    ),
-                                    child: const Text('Create'),
-                                  ),
-                                ],
-                              ),
-                            );
-                            if (name != null && name.isNotEmpty) {
-                              final created = await context
-                                  .read<TaskListsCubit>()
-                                  .create(name);
-                              if (created != null) {
-                                context.read<TaskListsCubit>().select(
-                                  created.id,
-                                );
-                                context.read<TaskBloc>().add(
-                                  TaskStarted(created.id),
-                                );
-                              }
-                            }
-                          },
-                        ),
-                        for (final l in listState.lists)
-                          ListTile(
-                            leading: Icon(
-                              l.id == listState.selectedListId
-                                  ? Icons.radio_button_checked
-                                  : Icons.radio_button_off,
-                            ),
-                            title: Text(l.name),
-                            onTap: () {
-                              Navigator.pop(ctx);
-                              context.read<TaskListsCubit>().select(l.id);
-                              context.read<TaskBloc>().add(TaskStarted(l.id));
-                            },
-                          ),
-                      ],
-                    ),
-                  );
-                },
-              );
-            },
-          ),
-        ],
       ),
       body: BlocBuilder<TaskBloc, TaskState>(
         builder: (context, state) {
@@ -178,7 +87,21 @@ class _HomePageState extends State<HomePage> {
               final task = state.tasks[index];
               return TaskTile(
                 task: task,
-                onTap: () => _openEdit(context, task),
+                onTap: () async {
+                  await Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => MultiBlocProvider(
+                        providers: [
+                          BlocProvider.value(value: context.read<TaskBloc>()),
+                          BlocProvider.value(
+                            value: context.read<TaskListsCubit>(),
+                          ),
+                        ],
+                        child: TaskDetailsPage(task: task),
+                      ),
+                    ),
+                  );
+                },
                 onToggle: (_) =>
                     context.read<TaskBloc>().add(TaskToggled(task.id)),
                 onDelete: () =>

@@ -7,7 +7,7 @@ import 'core/di/injection_container.dart';
 import 'data/models/task_hive_model.dart';
 import 'presentation/bloc/task_bloc.dart';
 import 'presentation/bloc/task_lists_cubit.dart';
-import 'presentation/pages/home_page.dart';
+import 'presentation/pages/task_lists_page.dart';
 import 'domain/usecases/add_task.dart';
 import 'domain/usecases/delete_task.dart';
 import 'domain/usecases/get_tasks.dart';
@@ -67,7 +67,7 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ],
-        child: const HomePage(),
+        child: const TaskListsPage(),
       ),
     );
   }
