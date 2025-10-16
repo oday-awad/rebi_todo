@@ -8,12 +8,32 @@ import '../bloc/task_lists_cubit.dart';
 import '../bloc/task_bloc.dart';
 import 'home_page.dart';
 
+class _ListCounts {
+  final int active;
+  final int done;
+  final int archived;
+
+  const _ListCounts({
+    required this.active,
+    required this.done,
+    required this.archived,
+  });
+}
+
 class TaskListsPage extends StatelessWidget {
   const TaskListsPage({super.key});
 
-  Future<int> _activeCount(String listId) async {
-    final tasks = await GetIt.I<GetTasks>()(listId: listId);
-    return tasks.where((t) => !t.isDone).length;
+  Future<_ListCounts> _listCounts(String listId) async {
+    final getTasks = GetIt.I<GetTasks>();
+    final results = await Future.wait([
+      getTasks(listId: listId), // non-archived
+      getTasks(listId: listId, archived: true), // archived
+    ]);
+    final nonArchived = results[0];
+    final archived = results[1];
+    final active = nonArchived.where((t) => !t.isDone).length;
+    final done = nonArchived.where((t) => t.isDone).length;
+    return _ListCounts(active: active, done: done, archived: archived.length);
   }
 
   Future<void> _createList(BuildContext context) async {
@@ -144,42 +164,77 @@ class TaskListsPage extends StatelessWidget {
               ),
             );
           }
-          return ListView.separated(
-            padding: const EdgeInsets.symmetric(vertical: 8),
+          return ListView.builder(
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
             itemCount: state.lists.length,
-            separatorBuilder: (_, __) => const Divider(height: 0),
             itemBuilder: (context, index) {
               final list = state.lists[index];
-              return ListTile(
-                title: Text(list.name),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    FutureBuilder<int>(
-                      future: _activeCount(list.id),
-                      builder: (context, snapshot) {
-                        final count = snapshot.data;
-                        return Chip(
-                          label: Text(count == null ? '…' : '$count'),
-                        );
-                      },
-                    ),
-                    PopupMenuButton<String>(
-                      onSelected: (value) {
-                        if (value == 'rename') {
-                          _renameList(context, list);
-                        } else if (value == 'delete') {
-                          _deleteList(context, list);
-                        }
-                      },
-                      itemBuilder: (ctx) => const [
-                        PopupMenuItem(value: 'rename', child: Text('Rename')),
-                        PopupMenuItem(value: 'delete', child: Text('Delete')),
-                      ],
-                    ),
-                  ],
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: FutureBuilder<_ListCounts>(
+                  future: _listCounts(list.id),
+                  builder: (context, snapshot) {
+                    final counts = snapshot.data;
+                    return Card(
+                      elevation: 1.5,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: InkWell(
+                        onTap: () => _openList(context, list.id),
+                        child: ListTile(
+                          leading: const Icon(Icons.list_alt),
+                          title: Text(
+                            list.name,
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          subtitle: Padding(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: Wrap(
+                              spacing: 8,
+                              runSpacing: -8,
+                              children: [
+                                _CountChip(
+                                  label: 'Active',
+                                  value: counts?.active,
+                                ),
+                                _CountChip(label: 'Done', value: counts?.done),
+                                _CountChip(
+                                  label: 'Archived',
+                                  value: counts?.archived,
+                                ),
+                              ],
+                            ),
+                          ),
+                          trailing: PopupMenuButton<String>(
+                            onSelected: (value) {
+                              if (value == 'rename') {
+                                _renameList(context, list);
+                              } else if (value == 'delete') {
+                                _deleteList(context, list);
+                              }
+                            },
+                            itemBuilder: (ctx) => const [
+                              PopupMenuItem(
+                                value: 'rename',
+                                child: Text('Rename'),
+                              ),
+                              PopupMenuItem(
+                                value: 'delete',
+                                child: Text('Delete'),
+                              ),
+                            ],
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
-                onTap: () => _openList(context, list.id),
               );
             },
           );
@@ -190,5 +245,17 @@ class TaskListsPage extends StatelessWidget {
         child: const Icon(Icons.add),
       ),
     );
+  }
+}
+
+class _CountChip extends StatelessWidget {
+  final String label;
+  final int? value;
+
+  const _CountChip({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text('$label: ${value ?? '…'}');
   }
 }
