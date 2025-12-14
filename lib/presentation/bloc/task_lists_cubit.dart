@@ -47,6 +47,7 @@ class TaskListsCubit extends Cubit<TaskListsState> {
   final RenameTaskList renameTaskList;
   final DeleteTaskList deleteTaskList;
   final ReorderTaskLists reorderTaskLists;
+  final UpdateTaskListIcon updateTaskListIcon;
 
   TaskListsCubit({
     required this.getTaskLists,
@@ -54,6 +55,7 @@ class TaskListsCubit extends Cubit<TaskListsState> {
     required this.renameTaskList,
     required this.deleteTaskList,
     required this.reorderTaskLists,
+    required this.updateTaskListIcon,
   }) : super(const TaskListsState.initial());
 
   Future<void> load() async {
@@ -74,7 +76,7 @@ class TaskListsCubit extends Cubit<TaskListsState> {
     emit(state.copyWith(selectedListId: listId));
   }
 
-  Future<TaskList?> create(String name) async {
+  Future<TaskList?> create(String name, {int? iconCodePoint}) async {
     final maxOrder = state.lists.isEmpty
         ? 0
         : state.lists.map((l) => l.order).reduce((a, b) => a > b ? a : b);
@@ -83,6 +85,7 @@ class TaskListsCubit extends Cubit<TaskListsState> {
       name: name,
       createdAt: DateTime.now(),
       order: maxOrder + 1,
+      iconCodePoint: iconCodePoint,
     );
     final saved = await addTaskList(list);
     await load();
@@ -101,6 +104,11 @@ class TaskListsCubit extends Cubit<TaskListsState> {
 
   Future<void> reorder(List<String> orderedIds) async {
     await reorderTaskLists(orderedIds);
+    await load();
+  }
+
+  Future<void> updateIcon(String id, int? iconCodePoint) async {
+    await updateTaskListIcon(id, iconCodePoint);
     await load();
   }
 }

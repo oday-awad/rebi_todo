@@ -3,12 +3,14 @@ class TaskList {
   final String name;
   final DateTime createdAt;
   final int order;
+  final int? iconCodePoint;
 
   const TaskList({
     required this.id,
     required this.name,
     required this.createdAt,
     this.order = 0,
+    this.iconCodePoint,
   });
 
   TaskList copyWith({
@@ -16,12 +18,14 @@ class TaskList {
     String? name,
     DateTime? createdAt,
     int? order,
+    int? iconCodePoint,
   }) {
     return TaskList(
       id: id ?? this.id,
       name: name ?? this.name,
       createdAt: createdAt ?? this.createdAt,
       order: order ?? this.order,
+      iconCodePoint: iconCodePoint ?? this.iconCodePoint,
     );
   }
 }

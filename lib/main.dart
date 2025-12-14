@@ -57,6 +57,7 @@ class MyApp extends StatelessWidget {
               renameTaskList: GetIt.I<RenameTaskList>(),
               deleteTaskList: GetIt.I<DeleteTaskList>(),
               reorderTaskLists: GetIt.I<ReorderTaskLists>(),
+              updateTaskListIcon: GetIt.I<UpdateTaskListIcon>(),
             )..load(),
           ),
           BlocProvider(

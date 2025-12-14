@@ -13,6 +13,7 @@ class TaskListRepositoryImpl implements TaskListRepository {
     name: model.name,
     createdAt: model.createdAt,
     order: model.order,
+    iconCodePoint: model.iconCodePoint,
   );
 
   TaskListHiveModel _toHive(TaskList list) => TaskListHiveModel(
@@ -20,6 +21,7 @@ class TaskListRepositoryImpl implements TaskListRepository {
     name: list.name,
     createdAt: list.createdAt,
     order: list.order,
+    iconCodePoint: list.iconCodePoint,
   );
 
   @override
@@ -44,4 +46,8 @@ class TaskListRepositoryImpl implements TaskListRepository {
   @override
   Future<void> reorderLists(List<String> orderedIds) =>
       localDataSource.reorderLists(orderedIds);
+
+  @override
+  Future<void> updateListIcon(String id, int? iconCodePoint) =>
+      localDataSource.updateListIcon(id, iconCodePoint);
 }

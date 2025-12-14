@@ -31,3 +31,10 @@ class ReorderTaskLists {
   Future<void> call(List<String> orderedIds) =>
       repository.reorderLists(orderedIds);
 }
+
+class UpdateTaskListIcon {
+  final TaskListRepository repository;
+  UpdateTaskListIcon(this.repository);
+  Future<void> call(String id, int? iconCodePoint) =>
+      repository.updateListIcon(id, iconCodePoint);
+}

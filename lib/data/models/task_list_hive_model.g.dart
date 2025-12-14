@@ -16,13 +16,14 @@ class TaskListHiveModelAdapter extends TypeAdapter<TaskListHiveModel> {
       name: fields[1] as String,
       createdAt: fields[2] as DateTime,
       order: fields[3] as int? ?? 0,
+      iconCodePoint: fields[4] as int?,
     );
   }
 
   @override
   void write(BinaryWriter writer, TaskListHiveModel obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -30,6 +31,8 @@ class TaskListHiveModelAdapter extends TypeAdapter<TaskListHiveModel> {
       ..writeByte(2)
       ..write(obj.createdAt)
       ..writeByte(3)
-      ..write(obj.order);
+      ..write(obj.order)
+      ..writeByte(4)
+      ..write(obj.iconCodePoint);
   }
 }

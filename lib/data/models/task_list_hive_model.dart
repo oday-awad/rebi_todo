@@ -16,10 +16,14 @@ class TaskListHiveModel extends HiveObject {
   @HiveField(3)
   int order;
 
+  @HiveField(4)
+  int? iconCodePoint;
+
   TaskListHiveModel({
     required this.id,
     required this.name,
     required this.createdAt,
     this.order = 0,
+    this.iconCodePoint,
   });
 }

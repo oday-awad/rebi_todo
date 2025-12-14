@@ -41,4 +41,12 @@ class TaskListLocalDataSource {
       }
     }
   }
+
+  Future<void> updateListIcon(String id, int? iconCodePoint) async {
+    final existing = listBox.get(id);
+    if (existing != null) {
+      existing.iconCodePoint = iconCodePoint;
+      await existing.save();
+    }
+  }
 }

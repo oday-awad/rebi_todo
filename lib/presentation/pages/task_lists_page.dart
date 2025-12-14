@@ -76,29 +76,56 @@ class _TaskListsPageState extends State<TaskListsPage> {
 
   Future<void> _createList(BuildContext context) async {
     final controller = TextEditingController();
-    final name = await showDialog<String>(
+    int? selectedIcon;
+    final result = await showDialog<Map<String, dynamic>>(
       context: context,
-      builder: (dCtx) => AlertDialog(
-        title: const Text('New list'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(hintText: 'List name'),
-          autofocus: true,
+      builder: (dCtx) => StatefulBuilder(
+        builder: (ctx, setState) => AlertDialog(
+          title: const Text('New list'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: controller,
+                  decoration: const InputDecoration(hintText: 'List name'),
+                  autofocus: true,
+                ),
+                const SizedBox(height: 16),
+                const Text('Choose an icon (optional)'),
+                const SizedBox(height: 8),
+                _IconPicker(
+                  selectedIcon: selectedIcon,
+                  onIconSelected: (icon) {
+                    setState(() => selectedIcon = icon);
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dCtx),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(dCtx, {
+                'name': controller.text.trim(),
+                'icon': selectedIcon,
+              }),
+              child: const Text('Create'),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dCtx),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(dCtx, controller.text.trim()),
-            child: const Text('Create'),
-          ),
-        ],
       ),
     );
-    if (name == null || name.isEmpty) return;
-    final saved = await context.read<TaskListsCubit>().create(name);
+    if (result == null || result['name'] == null || result['name'].isEmpty) {
+      return;
+    }
+    final saved = await context.read<TaskListsCubit>().create(
+      result['name'] as String,
+      iconCodePoint: result['icon'] as int?,
+    );
     if (saved != null) {
       _openList(context, saved.id);
     }
@@ -106,29 +133,61 @@ class _TaskListsPageState extends State<TaskListsPage> {
 
   Future<void> _renameList(BuildContext context, TaskList list) async {
     final controller = TextEditingController(text: list.name);
-    final name = await showDialog<String>(
+    int? selectedIcon = list.iconCodePoint;
+    final result = await showDialog<Map<String, dynamic>>(
       context: context,
-      builder: (dCtx) => AlertDialog(
-        title: const Text('Rename list'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(hintText: 'List name'),
-          autofocus: true,
+      builder: (dCtx) => StatefulBuilder(
+        builder: (ctx, setState) => AlertDialog(
+          title: const Text('Edit list'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: controller,
+                  decoration: const InputDecoration(hintText: 'List name'),
+                  autofocus: true,
+                ),
+                const SizedBox(height: 16),
+                const Text('Choose an icon (optional)'),
+                const SizedBox(height: 8),
+                _IconPicker(
+                  selectedIcon: selectedIcon,
+                  onIconSelected: (icon) {
+                    setState(() => selectedIcon = icon);
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dCtx),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(dCtx, {
+                'name': controller.text.trim(),
+                'icon': selectedIcon,
+              }),
+              child: const Text('Save'),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dCtx),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(dCtx, controller.text.trim()),
-            child: const Text('Save'),
-          ),
-        ],
       ),
     );
-    if (name == null || name.isEmpty || name == list.name) return;
-    await context.read<TaskListsCubit>().rename(list.id, name);
+    if (result == null) return;
+    final name = result['name'] as String;
+    final icon = result['icon'] as int?;
+    if (name.isEmpty || (name == list.name && icon == list.iconCodePoint)) {
+      return;
+    }
+    if (name != list.name) {
+      await context.read<TaskListsCubit>().rename(list.id, name);
+    }
+    if (icon != list.iconCodePoint) {
+      await context.read<TaskListsCubit>().updateIcon(list.id, icon);
+    }
   }
 
   Future<void> _deleteList(BuildContext context, TaskList list) async {
@@ -239,7 +298,14 @@ class _TaskListsPageState extends State<TaskListsPage> {
                             children: [
                               const Icon(Icons.drag_handle, color: Colors.grey),
                               const SizedBox(width: 8),
-                              const Icon(Icons.list_alt),
+                              Icon(
+                                list.iconCodePoint != null
+                                    ? IconData(
+                                        list.iconCodePoint!,
+                                        fontFamily: 'MaterialIcons',
+                                      )
+                                    : Icons.list_alt,
+                              ),
                             ],
                           ),
                           title: Text(
@@ -319,5 +385,96 @@ class _CountChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text('$label: ${value ?? '…'}');
+  }
+}
+
+class _IconPicker extends StatelessWidget {
+  final int? selectedIcon;
+  final ValueChanged<int?> onIconSelected;
+
+  const _IconPicker({required this.selectedIcon, required this.onIconSelected});
+
+  static final List<int> _icons = [
+    Icons.work.codePoint,
+    Icons.home.codePoint,
+    Icons.shopping_cart.codePoint,
+    Icons.fitness_center.codePoint,
+    Icons.school.codePoint,
+    Icons.favorite.codePoint,
+    Icons.star.codePoint,
+    Icons.lightbulb.codePoint,
+    Icons.music_note.codePoint,
+    Icons.movie.codePoint,
+    Icons.restaurant.codePoint,
+    Icons.local_gas_station.codePoint,
+    Icons.flight.codePoint,
+    Icons.beach_access.codePoint,
+    Icons.sports_soccer.codePoint,
+    Icons.book.codePoint,
+    Icons.computer.codePoint,
+    Icons.phone.codePoint,
+    Icons.car_rental.codePoint,
+    Icons.pets.codePoint,
+    Icons.local_hospital.codePoint,
+    Icons.account_balance.codePoint,
+    Icons.attach_money.codePoint,
+    Icons.cake.codePoint,
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        GestureDetector(
+          onTap: () => onIconSelected(null),
+          child: Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: selectedIcon == null
+                    ? Theme.of(context).colorScheme.primary
+                    : Colors.grey,
+                width: selectedIcon == null ? 2 : 1,
+              ),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              Icons.close,
+              color: selectedIcon == null
+                  ? Theme.of(context).colorScheme.primary
+                  : Colors.grey,
+            ),
+          ),
+        ),
+        ..._icons.map((iconCode) {
+          final isSelected = selectedIcon == iconCode;
+          return GestureDetector(
+            onTap: () => onIconSelected(iconCode),
+            child: Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: isSelected
+                      ? Theme.of(context).colorScheme.primary
+                      : Colors.grey,
+                  width: isSelected ? 2 : 1,
+                ),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                IconData(iconCode, fontFamily: 'MaterialIcons'),
+                color: isSelected
+                    ? Theme.of(context).colorScheme.primary
+                    : Colors.grey,
+              ),
+            ),
+          );
+        }),
+      ],
+    );
   }
 }

@@ -51,4 +51,5 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => RenameTaskList(sl()));
   sl.registerLazySingleton(() => DeleteTaskList(sl()));
   sl.registerLazySingleton(() => ReorderTaskLists(sl()));
+  sl.registerLazySingleton(() => UpdateTaskListIcon(sl()));
 }
