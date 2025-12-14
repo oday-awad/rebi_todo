@@ -8,13 +8,18 @@ class TaskListRepositoryImpl implements TaskListRepository {
 
   TaskListRepositoryImpl({required this.localDataSource});
 
-  TaskList _fromHive(TaskListHiveModel model) =>
-      TaskList(id: model.id, name: model.name, createdAt: model.createdAt);
+  TaskList _fromHive(TaskListHiveModel model) => TaskList(
+    id: model.id,
+    name: model.name,
+    createdAt: model.createdAt,
+    order: model.order,
+  );
 
   TaskListHiveModel _toHive(TaskList list) => TaskListHiveModel(
     id: list.id,
     name: list.name,
     createdAt: list.createdAt,
+    order: list.order,
   );
 
   @override
@@ -35,4 +40,8 @@ class TaskListRepositoryImpl implements TaskListRepository {
   @override
   Future<void> renameList(String id, String name) =>
       localDataSource.renameList(id, name);
+
+  @override
+  Future<void> reorderLists(List<String> orderedIds) =>
+      localDataSource.reorderLists(orderedIds);
 }

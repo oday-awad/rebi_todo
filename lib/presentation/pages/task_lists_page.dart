@@ -20,8 +20,46 @@ class _ListCounts {
   });
 }
 
-class TaskListsPage extends StatelessWidget {
+class TaskListsPage extends StatefulWidget {
   const TaskListsPage({super.key});
+
+  @override
+  State<TaskListsPage> createState() => _TaskListsPageState();
+}
+
+class _TaskListsPageState extends State<TaskListsPage> {
+  final ScrollController _scrollController = ScrollController();
+  bool _isFabVisible = true;
+  double _lastScrollOffset = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    final currentOffset = _scrollController.offset;
+    if (currentOffset > _lastScrollOffset && currentOffset > 50) {
+      // Scrolling down
+      if (_isFabVisible) {
+        setState(() => _isFabVisible = false);
+      }
+    } else if (currentOffset < _lastScrollOffset || currentOffset < 50) {
+      // Scrolling up or near top
+      if (!_isFabVisible) {
+        setState(() => _isFabVisible = true);
+      }
+    }
+    _lastScrollOffset = currentOffset;
+  }
 
   Future<_ListCounts> _listCounts(String listId) async {
     final getTasks = GetIt.I<GetTasks>();
@@ -164,12 +202,24 @@ class TaskListsPage extends StatelessWidget {
               ),
             );
           }
-          return ListView.builder(
+          return ReorderableListView.builder(
+            scrollController: _scrollController,
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
             itemCount: state.lists.length,
+            onReorder: (oldIndex, newIndex) {
+              if (oldIndex < newIndex) {
+                newIndex -= 1;
+              }
+              final lists = List<TaskList>.from(state.lists);
+              final item = lists.removeAt(oldIndex);
+              lists.insert(newIndex, item);
+              final orderedIds = lists.map((l) => l.id).toList();
+              context.read<TaskListsCubit>().reorder(orderedIds);
+            },
             itemBuilder: (context, index) {
               final list = state.lists[index];
               return Padding(
+                key: ValueKey(list.id),
                 padding: const EdgeInsets.symmetric(vertical: 6),
                 child: FutureBuilder<_ListCounts>(
                   future: _listCounts(list.id),
@@ -184,7 +234,14 @@ class TaskListsPage extends StatelessWidget {
                       child: InkWell(
                         onTap: () => _openList(context, list.id),
                         child: ListTile(
-                          leading: const Icon(Icons.list_alt),
+                          leading: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.drag_handle, color: Colors.grey),
+                              const SizedBox(width: 8),
+                              const Icon(Icons.list_alt),
+                            ],
+                          ),
                           title: Text(
                             list.name,
                             style: Theme.of(context).textTheme.titleMedium,
@@ -240,9 +297,14 @@ class TaskListsPage extends StatelessWidget {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _createList(context),
-        child: const Icon(Icons.add),
+
+      floatingActionButton: AnimatedScale(
+        scale: _isFabVisible ? 1.0 : 0.0,
+        duration: const Duration(milliseconds: 200),
+        child: FloatingActionButton(
+          onPressed: () => _createList(context),
+          child: const Icon(Icons.add),
+        ),
       ),
     );
   }

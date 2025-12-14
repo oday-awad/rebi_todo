@@ -56,4 +56,8 @@ class TaskRepositoryImpl implements TaskRepository {
 
   @override
   Future<void> toggleArchive(String id) => localDataSource.toggleArchive(id);
+
+  @override
+  Future<void> moveTask(String taskId, String newListId) =>
+      localDataSource.moveTask(taskId, newListId);
 }

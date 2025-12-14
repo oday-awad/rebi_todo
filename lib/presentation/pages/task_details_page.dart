@@ -164,6 +164,66 @@ class TaskDetailsPage extends StatelessWidget {
                                 ),
                               ),
                               OutlinedButton.icon(
+                                onPressed: () async {
+                                  final task = current!;
+                                  final listsState =
+                                      context.read<TaskListsCubit>().state;
+                                  if (listsState.lists.length <= 1) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'You need at least one other list to move this task.',
+                                        ),
+                                      ),
+                                    );
+                                    return;
+                                  }
+                                  final selectedListId = await showDialog<String>(
+                                    context: context,
+                                    builder: (dCtx) => AlertDialog(
+                                      title: const Text('Move to List'),
+                                      content: SizedBox(
+                                        width: double.maxFinite,
+                                        child: ListView.builder(
+                                          shrinkWrap: true,
+                                          itemCount: listsState.lists.length,
+                                          itemBuilder: (ctx, index) {
+                                            final list =
+                                                listsState.lists[index];
+                                            if (list.id == task.listId) {
+                                              return const SizedBox.shrink();
+                                            }
+                                            return ListTile(
+                                              title: Text(list.name),
+                                              onTap: () =>
+                                                  Navigator.pop(ctx, list.id),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(dCtx),
+                                          child: const Text('Cancel'),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                  if (selectedListId != null) {
+                                    context.read<TaskBloc>().add(
+                                          TaskMoved(
+                                            taskId: task.id,
+                                            newListId: selectedListId,
+                                          ),
+                                        );
+                                    Navigator.of(context).pop();
+                                  }
+                                },
+                                icon: const Icon(Icons.move_to_inbox),
+                                label: const Text('Move to List'),
+                              ),
+                              OutlinedButton.icon(
                                 onPressed: () {
                                   context.read<TaskBloc>().add(
                                     TaskArchiveToggled(current!.id),

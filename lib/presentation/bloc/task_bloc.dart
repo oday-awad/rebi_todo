@@ -8,6 +8,7 @@ import '../../domain/usecases/get_tasks.dart';
 import '../../domain/usecases/toggle_done.dart';
 import '../../domain/usecases/toggle_archive.dart';
 import '../../domain/usecases/update_task.dart';
+import '../../domain/usecases/move_task.dart';
 
 part 'task_event.dart';
 part 'task_state.dart';
@@ -20,6 +21,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
   final DeleteTask deleteTask;
   final ToggleDone toggleDone;
   final ToggleArchive toggleArchive;
+  final MoveTask moveTask;
 
   TaskBloc({
     required this.getTasks,
@@ -28,6 +30,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     required this.deleteTask,
     required this.toggleDone,
     required this.toggleArchive,
+    required this.moveTask,
   }) : super(const TaskState.initial()) {
     on<TaskStarted>(_onStarted);
     on<TaskAdded>(_onAdded);
@@ -35,6 +38,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     on<TaskDeleted>(_onDeleted);
     on<TaskToggled>(_onToggled);
     on<TaskArchiveToggled>(_onArchiveToggled);
+    on<TaskMoved>(_onMoved);
   }
 
   List<Task> _sortTasks(List<Task> tasks) {
@@ -117,6 +121,20 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
       final updated = state.tasks
           .where((t) => t.id != event.id) // remove from current list (active)
           .toList();
+      emit(state.copyWith(tasks: _sortTasks(updated)));
+    } catch (e) {
+      emit(state.copyWith(errorMessage: e.toString()));
+    }
+  }
+
+  Future<void> _onMoved(
+    TaskMoved event,
+    Emitter<TaskState> emit,
+  ) async {
+    try {
+      await moveTask(taskId: event.taskId, newListId: event.newListId);
+      // Remove task from current list since it's moved to another list
+      final updated = state.tasks.where((t) => t.id != event.taskId).toList();
       emit(state.copyWith(tasks: _sortTasks(updated)));
     } catch (e) {
       emit(state.copyWith(errorMessage: e.toString()));

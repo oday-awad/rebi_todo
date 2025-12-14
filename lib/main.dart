@@ -14,6 +14,7 @@ import 'domain/usecases/get_tasks.dart';
 import 'domain/usecases/toggle_done.dart';
 import 'domain/usecases/toggle_archive.dart';
 import 'domain/usecases/update_task.dart';
+import 'domain/usecases/move_task.dart';
 import 'domain/usecases/task_lists.dart';
 import 'data/models/task_list_hive_model.dart';
 
@@ -39,6 +40,7 @@ class MyApp extends StatelessWidget {
     final deleteTask = GetIt.I<DeleteTask>();
     final toggleDone = GetIt.I<ToggleDone>();
     final toggleArchive = GetIt.I<ToggleArchive>();
+    final moveTask = GetIt.I<MoveTask>();
 
     return MaterialApp(
       title: 'Rebi TODO',
@@ -54,6 +56,7 @@ class MyApp extends StatelessWidget {
               addTaskList: GetIt.I<AddTaskList>(),
               renameTaskList: GetIt.I<RenameTaskList>(),
               deleteTaskList: GetIt.I<DeleteTaskList>(),
+              reorderTaskLists: GetIt.I<ReorderTaskLists>(),
             )..load(),
           ),
           BlocProvider(
@@ -64,6 +67,7 @@ class MyApp extends StatelessWidget {
               deleteTask: deleteTask,
               toggleDone: toggleDone,
               toggleArchive: toggleArchive,
+              moveTask: moveTask,
             ),
           ),
         ],

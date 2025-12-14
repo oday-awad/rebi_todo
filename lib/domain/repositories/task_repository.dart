@@ -11,4 +11,5 @@ abstract class TaskRepository {
   Future<void> deleteTask(String id);
   Future<void> toggleDone(String id);
   Future<void> toggleArchive(String id);
+  Future<void> moveTask(String taskId, String newListId);
 }

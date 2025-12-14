@@ -5,4 +5,5 @@ abstract class TaskListRepository {
   Future<TaskList> addList(TaskList list);
   Future<void> renameList(String id, String name);
   Future<void> deleteList(String id);
+  Future<void> reorderLists(List<String> orderedIds);
 }

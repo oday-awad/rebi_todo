@@ -46,12 +46,14 @@ class TaskListsCubit extends Cubit<TaskListsState> {
   final AddTaskList addTaskList;
   final RenameTaskList renameTaskList;
   final DeleteTaskList deleteTaskList;
+  final ReorderTaskLists reorderTaskLists;
 
   TaskListsCubit({
     required this.getTaskLists,
     required this.addTaskList,
     required this.renameTaskList,
     required this.deleteTaskList,
+    required this.reorderTaskLists,
   }) : super(const TaskListsState.initial());
 
   Future<void> load() async {
@@ -73,10 +75,14 @@ class TaskListsCubit extends Cubit<TaskListsState> {
   }
 
   Future<TaskList?> create(String name) async {
+    final maxOrder = state.lists.isEmpty
+        ? 0
+        : state.lists.map((l) => l.order).reduce((a, b) => a > b ? a : b);
     final list = TaskList(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       name: name,
       createdAt: DateTime.now(),
+      order: maxOrder + 1,
     );
     final saved = await addTaskList(list);
     await load();
@@ -90,6 +96,11 @@ class TaskListsCubit extends Cubit<TaskListsState> {
 
   Future<void> remove(String id) async {
     await deleteTaskList(id);
+    await load();
+  }
+
+  Future<void> reorder(List<String> orderedIds) async {
+    await reorderTaskLists(orderedIds);
     await load();
   }
 }

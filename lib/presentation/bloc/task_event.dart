@@ -54,3 +54,12 @@ class TaskArchiveToggled extends TaskEvent {
   @override
   List<Object?> get props => [id];
 }
+
+class TaskMoved extends TaskEvent {
+  final String taskId;
+  final String newListId;
+  const TaskMoved({required this.taskId, required this.newListId});
+
+  @override
+  List<Object?> get props => [taskId, newListId];
+}

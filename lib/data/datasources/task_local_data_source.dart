@@ -72,4 +72,16 @@ class TaskLocalDataSource {
       );
     }
   }
+
+  Future<void> moveTask(String taskId, String newListId) async {
+    final existing = taskBox.get(taskId);
+    if (existing != null) {
+      existing.listId = newListId;
+      await existing.save();
+      Log.i(
+        'Task moved id=$taskId to listId=$newListId',
+        tag: 'TaskLocalDataSource',
+      );
+    }
+  }
 }

@@ -24,3 +24,10 @@ class DeleteTaskList {
   DeleteTaskList(this.repository);
   Future<void> call(String id) => repository.deleteList(id);
 }
+
+class ReorderTaskLists {
+  final TaskListRepository repository;
+  ReorderTaskLists(this.repository);
+  Future<void> call(List<String> orderedIds) =>
+      repository.reorderLists(orderedIds);
+}

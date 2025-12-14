@@ -9,7 +9,10 @@ class TaskListLocalDataSource {
 
   Future<List<TaskListHiveModel>> getLists() async {
     return listBox.values.toList()
-      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      ..sort((a, b) {
+        if (a.order != b.order) return a.order.compareTo(b.order);
+        return b.createdAt.compareTo(a.createdAt);
+      });
   }
 
   Future<TaskListHiveModel> addList(TaskListHiveModel list) async {
@@ -27,5 +30,15 @@ class TaskListLocalDataSource {
 
   Future<void> deleteList(String id) async {
     await listBox.delete(id);
+  }
+
+  Future<void> reorderLists(List<String> orderedIds) async {
+    for (int i = 0; i < orderedIds.length; i++) {
+      final list = listBox.get(orderedIds[i]);
+      if (list != null) {
+        list.order = i;
+        await list.save();
+      }
+    }
   }
 }

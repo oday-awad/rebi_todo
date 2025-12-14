@@ -16,6 +16,7 @@ import '../../domain/usecases/toggle_done.dart';
 import '../../domain/usecases/update_task.dart';
 import '../../domain/usecases/task_lists.dart';
 import '../../domain/usecases/toggle_archive.dart';
+import '../../domain/usecases/move_task.dart';
 
 final sl = GetIt.instance;
 
@@ -44,8 +45,10 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => DeleteTask(sl()));
   sl.registerLazySingleton(() => ToggleDone(sl()));
   sl.registerLazySingleton(() => ToggleArchive(sl()));
+  sl.registerLazySingleton(() => MoveTask(sl()));
   sl.registerLazySingleton(() => GetTaskLists(sl()));
   sl.registerLazySingleton(() => AddTaskList(sl()));
   sl.registerLazySingleton(() => RenameTaskList(sl()));
   sl.registerLazySingleton(() => DeleteTaskList(sl()));
+  sl.registerLazySingleton(() => ReorderTaskLists(sl()));
 }
