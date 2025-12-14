@@ -7,6 +7,7 @@ class Task {
   final bool isDone;
   final bool isArchived;
   final DateTime createdAt;
+  final List<String> imagePaths;
 
   const Task({
     required this.id,
@@ -16,6 +17,7 @@ class Task {
     required this.isDone,
     this.isArchived = false,
     required this.createdAt,
+    this.imagePaths = const [],
   });
 
   Task copyWith({
@@ -26,6 +28,7 @@ class Task {
     bool? isDone,
     bool? isArchived,
     DateTime? createdAt,
+    List<String>? imagePaths,
   }) {
     return Task(
       id: id ?? this.id,
@@ -35,6 +38,7 @@ class Task {
       isDone: isDone ?? this.isDone,
       isArchived: isArchived ?? this.isArchived,
       createdAt: createdAt ?? this.createdAt,
+      imagePaths: imagePaths ?? this.imagePaths,
     );
   }
 }

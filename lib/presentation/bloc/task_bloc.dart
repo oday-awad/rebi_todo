@@ -9,6 +9,7 @@ import '../../domain/usecases/toggle_done.dart';
 import '../../domain/usecases/toggle_archive.dart';
 import '../../domain/usecases/update_task.dart';
 import '../../domain/usecases/move_task.dart';
+import '../../core/utils/image_storage.dart';
 
 part 'task_event.dart';
 part 'task_state.dart';
@@ -92,6 +93,8 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
 
   Future<void> _onDeleted(TaskDeleted event, Emitter<TaskState> emit) async {
     try {
+      // Delete images before deleting task
+      await ImageStorage.deleteTaskImages(event.id);
       await deleteTask(event.id);
       final updated = state.tasks.where((t) => t.id != event.id).toList();
       emit(state.copyWith(tasks: updated));

@@ -17,6 +17,7 @@ class TaskRepositoryImpl implements TaskRepository {
     isDone: model.isDone,
     isArchived: model.isArchived,
     createdAt: model.createdAt,
+    imagePaths: model.imagePaths,
   );
 
   TaskHiveModel _mapToHive(Task task) => TaskHiveModel(
@@ -27,6 +28,7 @@ class TaskRepositoryImpl implements TaskRepository {
     isDone: task.isDone,
     isArchived: task.isArchived,
     createdAt: task.createdAt,
+    imagePaths: task.imagePaths,
   );
 
   @override

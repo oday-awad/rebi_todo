@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -141,6 +142,26 @@ class TaskDetailsPage extends StatelessWidget {
                           if (current.description != null &&
                               current.description!.isNotEmpty)
                             Text(current.description!),
+                          if (current.imagePaths.isNotEmpty) ...[
+                            const SizedBox(height: 12),
+                            const Text('Images:'),
+                            const SizedBox(height: 8),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: current.imagePaths.map((imagePath) {
+                                return ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.file(
+                                    File(imagePath),
+                                    width: 150,
+                                    height: 150,
+                                    fit: BoxFit.cover,
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ],
                           const SizedBox(height: 12),
                           Text('Created: ${current.createdAt.toLocal()}'),
                           const SizedBox(height: 24),

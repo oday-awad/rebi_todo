@@ -29,6 +29,9 @@ class TaskHiveModel extends HiveObject {
   @HiveField(6)
   bool isArchived;
 
+  @HiveField(7)
+  List<String> imagePaths;
+
   TaskHiveModel({
     required this.id,
     required this.listId,
@@ -37,5 +40,6 @@ class TaskHiveModel extends HiveObject {
     required this.isDone,
     required this.createdAt,
     this.isArchived = false,
+    this.imagePaths = const [],
   });
 }
