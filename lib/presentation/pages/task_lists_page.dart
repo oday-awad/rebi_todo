@@ -61,6 +61,14 @@ class _TaskListsPageState extends State<TaskListsPage> {
     _lastScrollOffset = currentOffset;
   }
 
+  Widget _buildIcon(int? iconCodePoint) {
+    if (iconCodePoint == null) {
+      return const Icon(Icons.list_alt);
+    }
+    // ignore: avoid_dynamic_calls, prefer_const_constructors
+    return Icon(IconData(iconCodePoint, fontFamily: 'MaterialIcons'));
+  }
+
   Future<_ListCounts> _listCounts(String listId) async {
     final getTasks = GetIt.I<GetTasks>();
     final results = await Future.wait([
@@ -298,14 +306,7 @@ class _TaskListsPageState extends State<TaskListsPage> {
                             children: [
                               const Icon(Icons.drag_handle, color: Colors.grey),
                               const SizedBox(width: 8),
-                              Icon(
-                                list.iconCodePoint != null
-                                    ? IconData(
-                                        list.iconCodePoint!,
-                                        fontFamily: 'MaterialIcons',
-                                      )
-                                    : Icons.list_alt,
-                              ),
+                              _buildIcon(list.iconCodePoint),
                             ],
                           ),
                           title: Text(
@@ -465,16 +466,16 @@ class _IconPicker extends StatelessWidget {
                 ),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(
-                IconData(iconCode, fontFamily: 'MaterialIcons'),
-                color: isSelected
-                    ? Theme.of(context).colorScheme.primary
-                    : Colors.grey,
-              ),
+              child: _IconPicker._buildIcon(iconCode),
             ),
           );
         }),
       ],
     );
+  }
+
+  static Widget _buildIcon(int iconCode) {
+    // ignore: avoid_dynamic_calls, prefer_const_constructors
+    return Icon(IconData(iconCode, fontFamily: 'MaterialIcons'));
   }
 }
