@@ -7,6 +7,7 @@ import '../../domain/usecases/get_tasks.dart';
 import '../bloc/task_lists_cubit.dart';
 import '../bloc/task_bloc.dart';
 import 'home_page.dart';
+import 'settings_page.dart';
 
 class _ListCounts {
   final int active;
@@ -247,7 +248,20 @@ class _TaskListsPageState extends State<TaskListsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Task Lists')),
+      appBar: AppBar(
+        title: const Text('Task Lists'),
+        actions: [
+          IconButton(
+            tooltip: 'Settings',
+            icon: const Icon(Icons.settings_outlined),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const SettingsPage()),
+              );
+            },
+          ),
+        ],
+      ),
       body: BlocBuilder<TaskListsCubit, TaskListsState>(
         builder: (context, state) {
           if (state.loading && state.lists.isEmpty) {

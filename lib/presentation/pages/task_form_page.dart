@@ -7,6 +7,7 @@ import '../../domain/entities/task.dart';
 import '../../core/utils/image_storage.dart';
 import '../bloc/task_bloc.dart';
 import '../bloc/task_lists_cubit.dart';
+import '../widgets/full_screen_image_viewer.dart';
 
 class TaskFormPage extends StatefulWidget {
   final Task? initial;
@@ -176,13 +177,26 @@ class _TaskFormPageState extends State<TaskFormPage> {
                                 final imagePath = entry.value;
                                 return Stack(
                                   children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(8),
-                                      child: Image.file(
-                                        File(imagePath),
-                                        width: 100,
-                                        height: 100,
-                                        fit: BoxFit.cover,
+                                    GestureDetector(
+                                      onTap: () =>
+                                          FullScreenImageViewer.open(
+                                            context,
+                                            imagePaths: _imagePaths,
+                                            initialIndex: index,
+                                            heroTagPrefix: 'form_img',
+                                          ),
+                                      child: Hero(
+                                        tag: 'form_img_$index',
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          child: Image.file(
+                                            File(imagePath),
+                                            width: 100,
+                                            height: 100,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
                                       ),
                                     ),
                                     Positioned(

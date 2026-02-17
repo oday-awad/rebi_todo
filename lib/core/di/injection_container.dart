@@ -1,22 +1,27 @@
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 
+import '../../data/datasources/app_settings_local_data_source.dart';
 import '../../data/datasources/task_list_local_data_source.dart';
 import '../../data/datasources/task_local_data_source.dart';
 import '../../data/models/task_hive_model.dart';
 import '../../data/models/task_list_hive_model.dart';
+import '../../data/repositories/app_settings_repository_impl.dart';
 import '../../data/repositories/task_list_repository_impl.dart';
 import '../../data/repositories/task_repository_impl.dart';
+import '../../domain/repositories/app_settings_repository.dart';
 import '../../domain/repositories/task_list_repository.dart';
 import '../../domain/repositories/task_repository.dart';
 import '../../domain/usecases/add_task.dart';
 import '../../domain/usecases/delete_task.dart';
+import '../../domain/usecases/get_theme_mode.dart';
 import '../../domain/usecases/get_tasks.dart';
 import '../../domain/usecases/toggle_done.dart';
 import '../../domain/usecases/update_task.dart';
 import '../../domain/usecases/task_lists.dart';
 import '../../domain/usecases/toggle_archive.dart';
 import '../../domain/usecases/move_task.dart';
+import '../../domain/usecases/set_theme_mode.dart';
 
 final sl = GetIt.instance;
 
@@ -25,10 +30,12 @@ Future<void> initDependencies() async {
   // Boxes
   final taskBox = await Hive.openBox<TaskHiveModel>('tasks_box');
   final listBox = await Hive.openBox<TaskListHiveModel>('task_lists_box');
+  final settingsBox = await Hive.openBox<dynamic>('settings_box');
 
   // Data sources
   sl.registerLazySingleton(() => TaskLocalDataSource(taskBox));
   sl.registerLazySingleton(() => TaskListLocalDataSource(listBox));
+  sl.registerLazySingleton(() => AppSettingsLocalDataSource(settingsBox));
 
   // Repositories
   sl.registerLazySingleton<TaskRepository>(
@@ -36,6 +43,9 @@ Future<void> initDependencies() async {
   );
   sl.registerLazySingleton<TaskListRepository>(
     () => TaskListRepositoryImpl(localDataSource: sl()),
+  );
+  sl.registerLazySingleton<AppSettingsRepository>(
+    () => AppSettingsRepositoryImpl(localDataSource: sl()),
   );
 
   // Use cases
@@ -52,4 +62,6 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => DeleteTaskList(sl()));
   sl.registerLazySingleton(() => ReorderTaskLists(sl()));
   sl.registerLazySingleton(() => UpdateTaskListIcon(sl()));
+  sl.registerLazySingleton(() => GetThemeMode(sl()));
+  sl.registerLazySingleton(() => SetThemeMode(sl()));
 }

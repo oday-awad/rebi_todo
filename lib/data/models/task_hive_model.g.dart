@@ -13,7 +13,7 @@ class TaskHiveModelAdapter extends TypeAdapter<TaskHiveModel> {
     };
 
     // Helper to coerce dynamic to String safely
-    String _asString(dynamic v, {String fallback = ''}) {
+    String asString(dynamic v, {String fallback = ''}) {
       if (v == null) return fallback;
       if (v is String) return v;
       return v.toString();
@@ -22,9 +22,9 @@ class TaskHiveModelAdapter extends TypeAdapter<TaskHiveModel> {
     // Latest schema (8 fields): adds 7=imagePaths (List<String>)
     if (numOfFields >= 8 || fields.containsKey(7)) {
       return TaskHiveModel(
-        id: _asString(fields[0]),
-        listId: _asString(fields[1], fallback: 'default'),
-        title: _asString(fields[2]),
+        id: asString(fields[0]),
+        listId: asString(fields[1], fallback: 'default'),
+        title: asString(fields[2]),
         description: fields[3] as String?,
         isDone: (fields[4] as bool?) ?? false,
         createdAt: fields[5] as DateTime,
@@ -39,9 +39,9 @@ class TaskHiveModelAdapter extends TypeAdapter<TaskHiveModel> {
     // Newer schema (7 fields): adds 6=isArchived (bool)
     if (numOfFields >= 7 || fields.containsKey(6)) {
       return TaskHiveModel(
-        id: _asString(fields[0]),
-        listId: _asString(fields[1], fallback: 'default'),
-        title: _asString(fields[2]),
+        id: asString(fields[0]),
+        listId: asString(fields[1], fallback: 'default'),
+        title: asString(fields[2]),
         description: fields[3] as String?,
         isDone: (fields[4] as bool?) ?? false,
         createdAt: fields[5] as DateTime,
@@ -53,9 +53,9 @@ class TaskHiveModelAdapter extends TypeAdapter<TaskHiveModel> {
     // New schema (6 fields): 0=id, 1=listId, 2=title, 3=description, 4=isDone, 5=createdAt
     if (numOfFields >= 6 || fields.containsKey(5)) {
       return TaskHiveModel(
-        id: _asString(fields[0]),
-        listId: _asString(fields[1], fallback: 'default'),
-        title: _asString(fields[2]),
+        id: asString(fields[0]),
+        listId: asString(fields[1], fallback: 'default'),
+        title: asString(fields[2]),
         description: fields[3] as String?,
         isDone: (fields[4] as bool?) ?? false,
         createdAt: fields[5] as DateTime,
@@ -65,9 +65,9 @@ class TaskHiveModelAdapter extends TypeAdapter<TaskHiveModel> {
 
     // Backward-compat: old schema (5 fields): 0=id, 1=title, 2=description, 3=isDone, 4=createdAt
     return TaskHiveModel(
-      id: _asString(fields[0]),
+      id: asString(fields[0]),
       listId: 'default',
-      title: _asString(fields[1]),
+      title: asString(fields[1]),
       description: fields[2] as String?,
       isDone: (fields[3] as bool?) ?? false,
       createdAt: fields[4] as DateTime,

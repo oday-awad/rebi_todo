@@ -6,6 +6,7 @@ import '../bloc/task_lists_cubit.dart';
 import 'task_form_page.dart';
 import 'archived_page.dart';
 import 'task_details_page.dart';
+import 'settings_page.dart';
 import '../widgets/task_tile.dart';
 
 class HomePage extends StatefulWidget {
@@ -51,6 +52,17 @@ class _HomePageState extends State<HomePage> {
             return Text(currentName ?? 'Tasks');
           },
         ),
+        actions: [
+          IconButton(
+            tooltip: 'Settings',
+            icon: const Icon(Icons.settings_outlined),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const SettingsPage()),
+              );
+            },
+          ),
+        ],
       ),
       body: BlocBuilder<TaskBloc, TaskState>(
         builder: (context, state) {

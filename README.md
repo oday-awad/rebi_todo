@@ -8,6 +8,7 @@ Clean Architecture Flutter To‑Do app using Hive for local storage, BLoC for st
 - **State management**: `flutter_bloc`
 - **Dependency injection**: `get_it`
 - **Material 3 UI**
+- **Settings**: Theme selector (Light / Dark / System) persisted locally
 - **CRUD**: Add, Edit, Delete, Toggle Done
 - **Multiple lists**: Create/select separate lists (e.g. Shopping, Learning)
 - **Delete confirmation**: Prompt before deleting (swipe or menu)
@@ -45,6 +46,7 @@ lib/
       injection_container.dart
   data/
     datasources/
+      app_settings_local_data_source.dart
       task_local_data_source.dart
       task_list_local_data_source.dart
     models/
@@ -53,20 +55,25 @@ lib/
       task_list_hive_model.dart
       task_list_hive_model.g.dart
     repositories/
+      app_settings_repository_impl.dart
       task_repository_impl.dart
       task_list_repository_impl.dart
   domain/
     entities/
+      app_theme_mode.dart
       task.dart
       task_list.dart
     repositories/
+      app_settings_repository.dart
       task_repository.dart
       task_list_repository.dart
     usecases/
       add_task.dart
       update_task.dart
       delete_task.dart
+      get_theme_mode.dart
       get_tasks.dart
+      set_theme_mode.dart
       toggle_done.dart
       task_lists.dart
   presentation/
@@ -75,11 +82,14 @@ lib/
       task_event.dart
       task_state.dart
       task_lists_cubit.dart
+      theme_cubit.dart
     pages/
       home_page.dart
+      settings_page.dart
       task_form_page.dart
     widgets/
       task_tile.dart
+      theme_mode_selector.dart
   main.dart
 ```
 
